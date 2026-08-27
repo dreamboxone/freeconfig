@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: '3.10'
           
-      - name: Run Aggregation & Health Check
+      - name: Aggregate Pre-Tested Configs
         run: python update.py
         
       - name: Commit and Push changes
