@@ -14,14 +14,17 @@
 ### ۱. لینک استاندارد (پیشنهادی - Base64)
 این لینک با اکثر برنامه‌ها سازگاری کامل دارد:
 ```text
-[https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub_base64.txt](https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub_base64.txt)
+https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub_base64.txt
+```
 
-###
-۲. لینک متن ساده (Plain Text)
+### ۲. لینک متن ساده (Plain Text)
 اگر برنامه شما از حالت بالا پشتیبانی نکرد، از این لینک استفاده کنید:
+```text
+https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub.txt
+```
 
-Plaintext
-[https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub.txt](https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub.txt)
+---
+
 📱 آموزش استفاده در اندروید (v2rayNG)
 نرم‌افزار v2rayNG را باز کنید.
 از منوی سمت چپ بالا (سه خط)، گزینه Subscription group setting را انتخاب کنید.
