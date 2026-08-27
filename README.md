@@ -1,7 +1,7 @@
 <div dir="rtl" align="right" style="font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;">
 
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/v2fly/v2ray-core/master/v2ray.png" alt="V2Ray Logo" width="50" style="vertical-align: middle;"/>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/V2Ray_logo.svg" alt="V2Ray Logo" width="50" style="vertical-align: middle;"/>
   Free V2Ray Configs - Top 30
 </h1>
 

@@ -150,17 +150,17 @@ def test_with_xray(uri, port):
     with open(config_file, 'w') as f: json.dump(config_json, f)
         
     proc = subprocess.Popen(["./xray", "-c", config_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(0.5) 
+    time.sleep(1.0) # Increased to 1.0s to ensure Xray core fully initializes on GitHub servers before curling
     
     curl_cmd = [
         "curl", "-x", f"socks5h://127.0.0.1:{port}",
         "-s", "-o", "/dev/null", "-w", "%{time_total}",
-        "-m", "3", "http://cp.cloudflare.com/generate_204"
+        "-m", "5", "http://cp.cloudflare.com/generate_204" # Increased curl timeout to 5s to be safe
     ]
     
     latency = float('inf')
     try:
-        res = subprocess.run(curl_cmd, capture_output=True, text=True, timeout=5)
+        res = subprocess.run(curl_cmd, capture_output=True, text=True, timeout=7)
         if res.returncode == 0: latency = float(res.stdout.strip())
     except: pass
     
