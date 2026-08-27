@@ -12,32 +12,29 @@
 برای استفاده در نرم‌افزار خود، یکی از لینک‌های زیر را کپی کرده و در برنامه فیلترشکن خود وارد کنید:
 
 ### ۱. لینک استاندارد (پیشنهادی - Base64)
-این لینک با اکثر برنامه‌ها (v2rayNG, v2rayN, Hiddify و...) سازگاری کامل دارد:
+این لینک با اکثر برنامه‌ها سازگاری کامل دارد:
 ```text
 [https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub_base64.txt](https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub_base64.txt)
 
+###
+۲. لینک متن ساده (Plain Text)
+اگر برنامه شما از حالت بالا پشتیبانی نکرد، از این لینک استفاده کنید:
+
+Plaintext
+[https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub.txt](https://raw.githubusercontent.com/dreamboxone/freeconfig/main/sub.txt)
 📱 آموزش استفاده در اندروید (v2rayNG)
 نرم‌افزار v2rayNG را باز کنید.
-
 از منوی سمت چپ بالا (سه خط)، گزینه Subscription group setting را انتخاب کنید.
-
 روی علامت + در بالا سمت راست کلیک کنید.
-
 در قسمت Remarks یک نام دلخواه (مثلا FreeConfig) بنویسید.
-
 در قسمت URL، یکی از لینک‌های بالا را جای‌گذاری (Paste) کنید و تیک بالا سمت راست را بزنید.
-
 به صفحه اصلی برنامه برگردید، از منوی سه نقطه بالا سمت راست، گزینه Update subscription را بزنید تا کانفیگ‌های جدید دانلود شوند.
 
 💻 آموزش استفاده در ویندوز (v2rayN)
 برنامه را باز کنید.
-
 از تب بالا گزینه Subscription و سپس Subscription setting را انتخاب کنید.
-
 روی گزینه Add کلیک کنید.
-
 در قسمت Remarks یک نام دلخواه بنویسید و در قسمت Url لینک بالا را قرار دهید و Save کنید.
-
 به صفحه اصلی برگردید، گزینه Subscription را زده و Update subscription را انتخاب کنید.
 
 اگر این پروژه برای شما مفید بود، لطفاً با کلیک روی ستاره (⭐) در بالای صفحه از آن حمایت کنید.
