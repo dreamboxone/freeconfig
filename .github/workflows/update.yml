@@ -1,32 +1,26 @@
-name: Auto Update V2Ray Configs
-
+name: Update Top 30 Configs
 on:
   schedule:
-    - cron: '0 * * * *' # اجرای خودکار در ابتدای هر ساعت (هر 1 ساعت)
-  workflow_dispatch: # اضافه کردن دکمه اجرای دستی
-
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 permissions:
   contents: write
-
 jobs:
   update-configs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
-      - name: Run Python Script (Fetch & Ping Test)
+      - name: Run advanced URL test script
         run: python update.py
-
       - name: Commit and Push changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action Bot"
           git add sub.txt sub_base64.txt
-          git diff --quiet && git diff --staged --quiet || git commit -m "Auto Update: Top 50 Configs 🚀"
+          git diff --quiet && git diff --staged --quiet || git commit -m "🚀 Auto Update: Top 30 Configs"
           git push
