@@ -1,16 +1,13 @@
 import urllib.request
+import urllib.parse
 import base64
 import json
-import re
-import socket
-import time
-from concurrent.futures import ThreadPoolExecutor
+import os
 import subprocess
-import tempfile
-import sys
-import shutil
+import time
+import queue
+from concurrent.futures import ThreadPoolExecutor
 
-# Sources to fetch configs from
 SOURCES = [
     "https://raw.githubusercontent.com/0xRadikal/Free-v2ray-Configs/main/top100.txt",
     "https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/Eternity",
@@ -18,8 +15,10 @@ SOURCES = [
 ]
 
 def decode_base64(data):
+    data = data.strip()
     missing_padding = len(data) % 4
-    if missing_padding: data += '=' * (4 - missing_padding)
+    if missing_padding:
+        data += '=' * (4 - missing_padding)
     try: return base64.b64decode(data).decode('utf-8')
     except: return ""
 
@@ -33,82 +32,178 @@ def get_configs():
                 if "://" not in text[:100]: text = decode_base64(text)
                 for line in text.splitlines():
                     line = line.strip()
-                    if line.startswith(("vmess://", "vless://", "trojan://", "ss://", "hysteria2://", "tuic://", "wireguard://")):
+                    if line.startswith(("vmess://", "vless://", "trojan://")):
                         configs.add(line)
         except Exception as e: print(f"Error fetching {url}: {e}")
     return list(configs)
 
-def download_lite_tester():
-    # We use lite-tester for real url testing via core
-    print("Downloading lite-tester...")
-    url = "https://github.com/v2fly/v2ray-core/releases/latest/download/v2ray-linux-64.zip"
+def parse_vmess(uri, local_port):
     try:
-        subprocess.run(["wget", "-q", "-O", "v2ray.zip", url], check=True)
-        subprocess.run(["unzip", "-q", "-o", "v2ray.zip", "-d", "v2ray-core"], check=True)
-        subprocess.run(["chmod", "+x", "v2ray-core/v2ray"], check=True)
-        return True
-    except Exception as e:
-        print(f"Failed to setup tester: {e}")
-        return False
+        data = json.loads(decode_base64(uri[8:]))
+        outbound = {
+            "protocol": "vmess",
+            "settings": {
+                "vnext": [{
+                    "address": data.get("add", ""),
+                    "port": int(data.get("port", 443)),
+                    "users": [{"id": data.get("id", ""), "alterId": int(data.get("aid", 0)), "security": data.get("scy", "auto")}]
+                }]
+            },
+            "streamSettings": {
+                "network": data.get("net", "tcp"),
+                "security": data.get("tls", "none")
+            }
+        }
+        if data.get("net") == "ws":
+            outbound["streamSettings"]["wsSettings"] = {"path": data.get("path", "/"), "headers": {"Host": data.get("host", "")}}
+        elif data.get("net") == "grpc":
+            outbound["streamSettings"]["grpcSettings"] = {"serviceName": data.get("path", ""), "multiMode": True}
+        if data.get("tls") == "tls":
+            outbound["streamSettings"]["tlsSettings"] = {"serverName": data.get("sni", data.get("host", "")), "allowInsecure": True}
+        return create_full_json(outbound, local_port)
+    except: return None
 
-# Since running a full real url test for hundreds of configs requires a specialized Go tool 
-# that manages concurrent Xray/V2ray cores, we will implement an improved python-based 
-# URL latency test by extracting proxies and using them. For simplicity and robustness in GitHub Actions,
-# a reliable approach without complex core wrapping is to do a rapid socket check first, then 
-# pick top ones. Since you requested URL test, we will use a refined approach.
-# To keep this robust and error-free in the python script, we simulate the logic.
-# A true core-based URL test in pure python is complex, so we will use proxy requests if possible, 
-# or a highly accurate TCP handshake as a fallback if proxy fails.
-
-def extract_host_port(config):
+def parse_vless(uri, local_port):
     try:
-        if config.startswith("vmess://"):
-            data = decode_base64(config[8:])
-            info = json.loads(data)
-            return info.get("add"), int(info.get("port"))
-        else:
-            match = re.search(r'@([^:]+):(\d+)', config)
-            if match: return match.group(1), int(match.group(2))
-    except: pass
-    return None, None
+        parsed = urllib.parse.urlparse(uri)
+        params = urllib.parse.parse_qs(parsed.query)
+        address = parsed.hostname
+        outbound = {
+            "protocol": "vless",
+            "settings": {
+                "vnext": [{
+                    "address": address,
+                    "port": parsed.port,
+                    "users": [{"id": parsed.username, "encryption": params.get("encryption", ["none"])[0]}]
+                }]
+            },
+            "streamSettings": {
+                "network": params.get("type", ["tcp"])[0],
+                "security": params.get("security", ["none"])[0]
+            }
+        }
+        sec = params.get("security", ["none"])[0]
+        if sec == "tls":
+            outbound["streamSettings"]["tlsSettings"] = {"serverName": params.get("sni", [address])[0], "allowInsecure": True}
+        elif sec == "reality":
+            outbound["streamSettings"]["realitySettings"] = {
+                "serverName": params.get("sni", [address])[0],
+                "publicKey": params.get("pbk", [""])[0],
+                "shortId": params.get("sid", [""])[0],
+                "fingerprint": params.get("fp", ["chrome"])[0],
+                "spiderX": params.get("spx", ["/"])[0]
+            }
+        net = params.get("type", ["tcp"])[0]
+        if net == "ws":
+            outbound["streamSettings"]["wsSettings"] = {"path": params.get("path", ["/"])[0], "headers": {"Host": params.get("host", [address])[0]}}
+        elif net == "grpc":
+            outbound["streamSettings"]["grpcSettings"] = {"serviceName": params.get("serviceName", [""])[0], "multiMode": True}
+        return create_full_json(outbound, local_port)
+    except: return None
 
-def advanced_ping(config, timeout=2.0):
-    # This function represents the "URL test" logic. 
-    # In a full-blown Go environment, this routes traffic through the core.
-    # Here, we do a very strict socket timing which closely mimics the initial latency of a URL test.
-    host, port = extract_host_port(config)
-    if not host or not port: return config, float('inf')
+def parse_trojan(uri, local_port):
+    try:
+        parsed = urllib.parse.urlparse(uri)
+        params = urllib.parse.parse_qs(parsed.query)
+        address = parsed.hostname
+        outbound = {
+            "protocol": "trojan",
+            "settings": {
+                "servers": [{"address": address, "port": parsed.port, "password": parsed.username}]
+            },
+            "streamSettings": {
+                "network": params.get("type", ["tcp"])[0],
+                "security": params.get("security", ["tls"])[0]
+            }
+        }
+        if outbound["streamSettings"]["security"] == "tls":
+            outbound["streamSettings"]["tlsSettings"] = {"serverName": params.get("sni", [address])[0], "allowInsecure": True}
+        net = params.get("type", ["tcp"])[0]
+        if net == "ws":
+            outbound["streamSettings"]["wsSettings"] = {"path": params.get("path", ["/"])[0], "headers": {"Host": params.get("host", [address])[0]}}
+        elif net == "grpc":
+            outbound["streamSettings"]["grpcSettings"] = {"serviceName": params.get("serviceName", [""])[0], "multiMode": True}
+        return create_full_json(outbound, local_port)
+    except: return None
+
+def create_full_json(outbound, local_port):
+    return {
+        "log": {"loglevel": "none"},
+        "inbounds": [{
+            "port": local_port,
+            "listen": "127.0.0.1",
+            "protocol": "socks",
+            "settings": {"udp": True}
+        }],
+        "outbounds": [outbound]
+    }
+
+def test_with_xray(uri, port):
+    if uri.startswith("vmess://"): config_json = parse_vmess(uri, port)
+    elif uri.startswith("vless://"): config_json = parse_vless(uri, port)
+    elif uri.startswith("trojan://"): config_json = parse_trojan(uri, port)
+    else: return uri, float('inf')
     
+    if not config_json: return uri, float('inf')
+    
+    config_file = f"config_{port}.json"
+    with open(config_file, 'w') as f: json.dump(config_json, f)
+        
+    proc = subprocess.Popen(["./xray", "-c", config_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(0.5) 
+    
+    curl_cmd = [
+        "curl", "-x", f"socks5h://127.0.0.1:{port}",
+        "-s", "-o", "/dev/null", "-w", "%{time_total}",
+        "-m", "3", "http://cp.cloudflare.com/generate_204"
+    ]
+    
+    latency = float('inf')
     try:
-        start = time.time()
-        # Connect
-        sock = socket.create_connection((host, port), timeout=timeout)
-        # Attempt to send a basic payload to test responsiveness (not just connection)
-        sock.sendall(b"\x00")
-        sock.close()
-        return config, time.time() - start
-    except: return config, float('inf')
+        res = subprocess.run(curl_cmd, capture_output=True, text=True, timeout=5)
+        if res.returncode == 0: latency = float(res.stdout.strip())
+    except: pass
+    
+    proc.terminate()
+    proc.wait()
+    try: os.remove(config_file)
+    except: pass
+    
+    return uri, latency
 
 def main():
+    if not os.path.exists("./xray"):
+        print("Xray core not found! Make sure GitHub Actions downloaded it.")
+        return
+
     print("Fetching configs...")
     configs = get_configs()
-    print(f"Found {len(configs)} raw configs.")
+    configs = configs[:300] # Limit to prevent timeouts
+    print(f"Found {len(configs)} raw configs to test.")
 
-    print("Running advanced latency tests (simulated URL test)...")
+    workers = 15
+    port_queue = queue.Queue()
+    for i in range(10000, 10000 + workers): port_queue.put(i)
+
+    def worker_task(uri):
+        port = port_queue.get()
+        try: return test_with_xray(uri, port)
+        finally: port_queue.put(port)
+
+    print("Running REAL URL tests using Xray-core...")
     tested_configs = []
-    with ThreadPoolExecutor(max_workers=50) as executor:
-        results = executor.map(advanced_ping, configs)
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        results = executor.map(worker_task, configs)
         for config, ping_time in results:
-            if ping_time != float('inf'): tested_configs.append((config, ping_time))
+            if ping_time != float('inf'):
+                tested_configs.append((config, ping_time))
+                print(f"Success: {ping_time}s")
 
     tested_configs.sort(key=lambda x: x[1])
-    
-    # We only want top 30 configs
     top_30 = [c[0] for c in tested_configs[:30]]
     
     print(f"Saving top {len(top_30)} configs.")
     plain_text = "\n".join(top_30)
-    
     with open("sub.txt", "w", encoding="utf-8") as f: f.write(plain_text)
     
     base64_text = base64.b64encode(plain_text.encode('utf-8')).decode('utf-8')

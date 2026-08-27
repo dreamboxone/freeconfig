@@ -7,13 +7,14 @@
 
 <p align="center">
   <b>گلچینی از ۳۰ کانفیگ برتر، سریع و تست‌شده برای دور زدن فیلترینگ اینترنت.</b><br>
-  این لیست با استفاده از الگوریتم‌های پیشرفته بررسی تاخیر و <b>URL Test</b> به‌روزرسانی می‌شود تا بهترین کیفیت اتصال را تجربه کنید.
+  این لیست با استفاده از هسته واقعی <b>Xray-core</b> و <b>URL Test واقعی</b> به‌روزرسانی می‌شود تا بهترین کیفیت اتصال را تجربه کنید.
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/github/last-commit/dreamboxone/freeconfig?color=success&style=for-the-badge&logo=github" alt="Last Commit">
   <img src="https://img.shields.io/badge/Update-Every_15_Mins-blue?style=for-the-badge&logo=clock" alt="Update Time">
   <img src="https://img.shields.io/badge/Configs-Top_30-orange?style=for-the-badge" alt="Top 30">
+  <img src="https://img.shields.io/badge/Tested_Via-Xray_Core-red?style=for-the-badge" alt="Xray Core">
 </p>
 
 <hr>
@@ -46,22 +47,10 @@
 <ol>
   <li>نرم‌افزار <b>v2rayNG</b> را باز کنید.</li>
   <li>از منوی سمت چپ بالا (سه خط)، روی <b>Subscription group setting</b> کلیک کنید.</li>
-  <li>دکمه <b>+</b> (بالا سمت راست) را بزنید.</li>
-  <li>در کادر Remarks نام دلخواه (مثلاً FreeConfig) بنویسید.</li>
+  <li>دکمه <b>+</b> را بزنید.</li>
+  <li>در کادر Remarks نام دلخواه بنویسید.</li>
   <li>در کادر URL، لینک استاندارد بالا را جای‌گذاری کنید و تیک تأیید را بزنید.</li>
-  <li>به صفحه اصلی برگردید، منوی سه‌نقطه بالا را باز کرده و <b>Update subscription</b> را انتخاب کنید.</li>
-</ol>
-</details>
-
-<details>
-<summary><b>آموزش v2rayN (ویندوز)</b></summary>
-<br>
-<ol>
-  <li>نرم‌افزار را اجرا کنید.</li>
-  <li>از منوی بالا به مسیر <b>Subscription -> Subscription setting</b> بروید.</li>
-  <li>روی <b>Add</b> کلیک کنید.</li>
-  <li>در بخش Remarks نام دلخواه و در بخش Url لینک اشتراک را قرار دهید.</li>
-  <li>تغییرات را Save کنید و در صفحه اصلی از منوی Subscription گزینه <b>Update subscription</b> را بزنید.</li>
+  <li>به صفحه اصلی برگردید و <b>Update subscription</b> را انتخاب کنید.</li>
 </ol>
 </details>
 
@@ -77,9 +66,4 @@
   <br>
   <b><a href="https://www.youtube.com/@routekernel">youtube.com/@routekernel</a></b>
 </div>
-
-<br>
-
-> ⭐ **لطفاً با دادن ستاره (Star) به این مخزن، از پروژه حمایت کنید!**
-
 </div>
