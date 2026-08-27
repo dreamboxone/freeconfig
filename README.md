@@ -64,4 +64,10 @@
   <br>
   <b><a href="https://www.youtube.com/@routekernel">youtube.com/@routekernel</a></b>
 </div>
+
+<hr>
+
+<h2>🙏 تقدیر و تشکر (Credits)</h2>
+<p>تشکر ویژه از پروژه <b><a href="https://github.com/0xRadikal/Free-v2ray-Configs">0xRadikal</a></b> بابت ارائه سورس‌ها و کانفیگ‌های باکیفیت و تست‌شده که هسته اصلی این مخزن را تشکیل می‌دهند.</p>
+
 </div>
