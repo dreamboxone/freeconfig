@@ -5,15 +5,14 @@
 </h1>
 
 <p align="center">
-  <b>گلچینی از ۳۰ کانفیگ برتر، سریع و تست‌شده برای دور زدن فیلترینگ اینترنت.</b><br>
-  این لیست با استفاده از هسته واقعی <b>Xray-core</b> و <b>URL Test واقعی</b> به‌روزرسانی می‌شود تا بهترین کیفیت اتصال را تجربه کنید.
+  <b>گلچینی از ۳۰ کانفیگ برتر، سریع و تست‌شده برای دور زدن فیلترینگ اینترنت ایران.</b><br>
+  این لیست به صورت خودکار از معتبرترین منابعی که سرورها را با <b>اینترنت ایران تست کرده‌اند</b> جمع‌آوری و به‌روزرسانی می‌شود.
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/github/last-commit/dreamboxone/freeconfig?color=success&style=for-the-badge&logo=github" alt="Last Commit">
   <img src="https://img.shields.io/badge/Update-Every_15_Mins-blue?style=for-the-badge&logo=clock" alt="Update Time">
   <img src="https://img.shields.io/badge/Configs-Top_30-orange?style=for-the-badge" alt="Top 30">
-  <img src="https://img.shields.io/badge/Tested_Via-Xray_Core-red?style=for-the-badge" alt="Xray Core">
 </p>
 
 <hr>
